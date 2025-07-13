@@ -1,4 +1,4 @@
-module bitme
+module byteme
 
 go 1.23
 

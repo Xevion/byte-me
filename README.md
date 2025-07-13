@@ -1,4 +1,4 @@
-# bitme
+# byteme
 
 A 'simple' application for reading and visualizing the bitrate of media files.
 
