@@ -1,368 +1,139 @@
-import { useState } from "react";
-import "./App.css";
-import { Greet } from "../wailsjs/go/main/App.js";
 import { ResponsiveLine } from "@nivo/line";
+import { useEffect, useMemo } from "react";
+import { OnFileDrop, OnFileDropOff } from "../wailsjs/runtime/runtime.js";
+import "./App.css";
 import { formatBytes } from "./lib/format.js";
 
+type Frame = {
+  id: string;
+  data: { x: string | number; y: number }[];
+};
+
 function App() {
-  const [resultText, setResultText] = useState(
-    "Please enter your name below 👇"
-  );
-  const [name, setName] = useState("");
-  const updateName = (e: any) => setName(e.target.value);
-  const updateResultText = (result: string) => setResultText(result);
+  useEffect(() => {
+    OnFileDrop((_x, _y, paths) => {}, true);
+    return () => OnFileDropOff();
+  }, []);
 
-  const data = [
-    {
-      id: "japan",
-      data: [
-        {
-          x: "plane",
-          y: 99,
-        },
-        {
-          x: "helicopter",
-          y: 80,
-        },
-        {
-          x: "boat",
-          y: 60,
-        },
-        {
-          x: "train",
-          y: 179,
-        },
-        {
-          x: "subway",
-          y: 102,
-        },
-        {
-          x: "bus",
-          y: 68,
-        },
-        {
-          x: "car",
-          y: 200,
-        },
-        {
-          x: "moto",
-          y: 38,
-        },
-        {
-          x: "bicycle",
-          y: 32,
-        },
-        {
-          x: "horse",
-          y: 84,
-        },
-        {
-          x: "skateboard",
-          y: 93,
-        },
-        {
-          x: "others",
-          y: 206,
-        },
-      ],
-    },
-    {
-      id: "france",
-      data: [
-        {
-          x: "plane",
-          y: 227,
-        },
-        {
-          x: "helicopter",
-          y: 278,
-        },
-        {
-          x: "boat",
-          y: 241,
-        },
-        {
-          x: "train",
-          y: 104,
-        },
-        {
-          x: "subway",
-          y: 140,
-        },
-        {
-          x: "bus",
-          y: 16,
-        },
-        {
-          x: "car",
-          y: 21,
-        },
-        {
-          x: "moto",
-          y: 135,
-        },
-        {
-          x: "bicycle",
-          y: 158,
-        },
-        {
-          x: "horse",
-          y: 41,
-        },
-        {
-          x: "skateboard",
-          y: 20,
-        },
-        {
-          x: "others",
-          y: 172,
-        },
-      ],
-    },
-    {
-      id: "us",
-      data: [
-        {
-          x: "plane",
-          y: 54,
-        },
-        {
-          x: "helicopter",
-          y: 59,
-        },
-        {
-          x: "boat",
-          y: 165,
-        },
-        {
-          x: "train",
-          y: 213,
-        },
-        {
-          x: "subway",
-          y: 79,
-        },
-        {
-          x: "bus",
-          y: 248,
-        },
-        {
-          x: "car",
-          y: 184,
-        },
-        {
-          x: "moto",
-          y: 251,
-        },
-        {
-          x: "bicycle",
-          y: 122,
-        },
-        {
-          x: "horse",
-          y: 12,
-        },
-        {
-          x: "skateboard",
-          y: 269,
-        },
-        {
-          x: "others",
-          y: 101,
-        },
-      ],
-    },
-    {
-      id: "germany",
-      data: [
-        {
-          x: "plane",
-          y: 177,
-        },
-        {
-          x: "helicopter",
-          y: 249,
-        },
-        {
-          x: "boat",
-          y: 37,
-        },
-        {
-          x: "train",
-          y: 173,
-        },
-        {
-          x: "subway",
-          y: 145,
-        },
-        {
-          x: "bus",
-          y: 283,
-        },
-        {
-          x: "car",
-          y: 50,
-        },
-        {
-          x: "moto",
-          y: 231,
-        },
-        {
-          x: "bicycle",
-          y: 100,
-        },
-        {
-          x: "horse",
-          y: 226,
-        },
-        {
-          x: "skateboard",
-          y: 5,
-        },
-        {
-          x: "others",
-          y: 139,
-        },
-      ],
-    },
-    {
-      id: "norway",
-      data: [
-        {
-          x: "plane",
-          y: 234,
-        },
-        {
-          x: "helicopter",
-          y: 38,
-        },
-        {
-          x: "boat",
-          y: 254,
-        },
-        {
-          x: "train",
-          y: 228,
-        },
-        {
-          x: "subway",
-          y: 106,
-        },
-        {
-          x: "bus",
-          y: 213,
-        },
-        {
-          x: "car",
-          y: 289,
-        },
-        {
-          x: "moto",
-          y: 116,
-        },
-        {
-          x: "bicycle",
-          y: 272,
-        },
-        {
-          x: "horse",
-          y: 50,
-        },
-        {
-          x: "skateboard",
-          y: 263,
-        },
-        {
-          x: "others",
-          y: 196,
-        },
-      ],
-    },
-  ];
+  const data: Frame[] = [];
+  // const data: Frame[] = useMemo(() =>
+  //   // Array.from({ length: 4 }, (_, i) => {
+  //   //   const d = Math.random();
+  //   //   const g = Math.random();
+  //   //   return {
+  //   //     id: `file-${i}`,
+  //   //     data: Array.from({ length: 500 }, (_, j) => {
+  //   //       if (Math.random() < 0.5) return null;
+  //   //       return {
+  //   //         x: j,
+  //   //         y: Math.random() * 256 * d + (1 - g) * 1024,
+  //   //       };
+  //   //     }).filter((i) => i !== null),
+  //   //   };
+  //   // }),
+  //   []
+  // );
 
-  function greet() {
-    Greet(name).then(updateResultText);
-  }
+  console.log(data);
 
-  return (
-    <div id="App" className="min-h-screen min-w-screen overflow-hidden">
-      <ResponsiveLine
-        data={data}
-        margin={{ top: 50, right: 110, bottom: 50, left: 60 }}
-        yScale={{
-          type: "linear",
-          min: 0,
-          max: "auto",
-          stacked: true,
-          reverse: false,
-        }}
-        theme={{
-          tooltip: {
-            container: {
-              backgroundColor: "#2e2b45",
-            },
+  const graph = (
+    <ResponsiveLine
+      data={data}
+      margin={{ top: 50, right: 110, bottom: 50, left: 60 }}
+      xScale={{ type: "linear" }}
+      yScale={{
+        type: "linear",
+        min: 0,
+        max: "auto",
+        stacked: false,
+        reverse: false,
+      }}
+      theme={{
+        tooltip: {
+          container: {
+            backgroundColor: "#2e2b45",
           },
-          grid: {
+        },
+        grid: {
+          line: {
+            stroke: "rgb(252, 191, 212)",
+            strokeWidth: 0.35,
+            strokeOpacity: 0.75,
+          },
+        },
+        crosshair: {
+          line: {
+            stroke: "#fdd3e2",
+            strokeWidth: 1,
+          },
+        },
+        axis: {
+          legend: {},
+
+          domain: {
             line: {
               stroke: "rgb(252, 191, 212)",
-              strokeWidth: 0.35,
-              strokeOpacity: 0.75,
+              strokeWidth: 0.5,
+              strokeOpacity: 0.5,
             },
           },
-          crosshair: {
-            line: {
-              stroke: "#fdd3e2",
-              strokeWidth: 1,
-            },
-          },
-          axis: {
-            legend: {},
+        },
+        text: {
+          fill: "#6e6a86",
+        },
+      }}
+      axisBottom={{ legend: "transportation", legendOffset: 36 }}
+      axisLeft={{
+        legend: "count",
+        legendOffset: -40,
+        format: (v) => formatBytes(v * 1024 * 53),
+      }}
+      pointSize={10}
+      colors={[
+        "#3e8faf",
+        "#c4a7e7",
+        "#f5c276",
+        "#EA9B96",
+        "#EB7092",
+        "#9CCFD8",
+      ]}
+      // pointColor={{ modifiers: [["brighter", 1100]] }}
+      pointBorderWidth={0}
+      pointBorderColor={{ from: "seriesColor" }}
+      pointLabelYOffset={-12}
+      enableSlices={"x"}
+      enableTouchCrosshair={true}
+      useMesh={true}
+      legends={[
+        {
+          anchor: "bottom-right",
+          direction: "column",
+          translateX: 100,
+          itemWidth: 80,
+          itemHeight: 22,
+          symbolShape: "circle",
+        },
+      ]}
+    />
+  );
 
-            domain: {
-              line: {
-                stroke: "rgb(252, 191, 212)",
-                strokeWidth: 0.5,
-                strokeOpacity: 0.5,
-              },
-            },
-          },
-          text: {
-            fill: "#6e6a86",
-          },
-        }}
-        axisBottom={{ legend: "transportation", legendOffset: 36 }}
-        axisLeft={{
-          legend: "count",
-          legendOffset: -40,
-          format: (v) => formatBytes(v * 1024 * 53),
-        }}
-        pointSize={10}
-        colors={[
-          "#3e8faf",
-          "#c4a7e7",
-          "#f5c276",
-          "#EA9B96",
-          "#EB7092",
-          "#9CCFD8",
-        ]}
-        // pointColor={{ modifiers: [["brighter", 1100]] }}
-        pointBorderWidth={0}
-        pointBorderColor={{ from: "seriesColor" }}
-        pointLabelYOffset={-12}
-        enableSlices={"x"}
-        enableTouchCrosshair={true}
-        useMesh={true}
-        legends={[
-          {
-            anchor: "bottom-right",
-            direction: "column",
-            translateX: 100,
-            itemWidth: 80,
-            itemHeight: 22,
-            symbolShape: "circle",
-          },
-        ]}
-      />
+  return (
+    <div
+      id="App"
+      className="min-h-screen min-w-screen overflow-hidden"
+      style={{ "--wails-drop-target": "drop" } as React.CSSProperties}
+    >
+      <div
+        id="drop-target"
+        className="absolute z-10 top-0 left-0 w-full h-full transition-[opacity] duration-200 ease-in-out"
+      >
+        <div className="flex flex-col items-center justify-center shadow h-full">
+          <div className="text-2xl font-bold text-zinc-200">
+            Drag and Drop to Add
+          </div>
+        </div>
+      </div>
+      {graph}
     </div>
   );
 }
