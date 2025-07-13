@@ -1,8 +1,8 @@
 import { useState } from "react";
-import logo from "./assets/images/logo-universal.png";
 import "./App.css";
 import { Greet } from "../wailsjs/go/main/App.js";
 import { ResponsiveLine } from "@nivo/line";
+import { formatBytes } from "./lib/format.js";
 
 function App() {
   const [resultText, setResultText] = useState(
@@ -285,13 +285,13 @@ function App() {
   }
 
   return (
-    <div id="App" className="min-h-screen min-w-screen">
-      <ResponsiveLine /* or Line for fixed dimensions */
+    <div id="App" className="min-h-screen min-w-screen overflow-hidden">
+      <ResponsiveLine
         data={data}
         margin={{ top: 50, right: 110, bottom: 50, left: 60 }}
         yScale={{
           type: "linear",
-          min: "auto",
+          min: 0,
           max: "auto",
           stacked: true,
           reverse: false,
@@ -331,10 +331,22 @@ function App() {
           },
         }}
         axisBottom={{ legend: "transportation", legendOffset: 36 }}
-        axisLeft={{ legend: "count", legendOffset: -40 }}
+        axisLeft={{
+          legend: "count",
+          legendOffset: -40,
+          format: (v) => formatBytes(v * 1024 * 53),
+        }}
         pointSize={10}
-        pointColor={{ modifiers: [["brighter", 1100]], from: "" }}
-        pointBorderWidth={2}
+        colors={[
+          "#3e8faf",
+          "#c4a7e7",
+          "#f5c276",
+          "#EA9B96",
+          "#EB7092",
+          "#9CCFD8",
+        ]}
+        // pointColor={{ modifiers: [["brighter", 1100]] }}
+        pointBorderWidth={0}
         pointBorderColor={{ from: "seriesColor" }}
         pointLabelYOffset={-12}
         enableSlices={"x"}
