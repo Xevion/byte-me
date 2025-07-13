@@ -2,7 +2,7 @@
 
 A 'simple' application for reading and visualizing the bitrate of media files.
 
-- Built with Wails, supported by ffprobe and Nivo.
+- Built with Tauri, supported by ffprobe and Nivo.
 - Supports Windows, macOS, and Linux.
 
 ## Features
