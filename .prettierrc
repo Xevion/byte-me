@@ -1,5 +1,4 @@
 {
-	"ignore": ["src/bindings.ts"],
 	"useTabs": true,
 	"tabWidth": 2
 }

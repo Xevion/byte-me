@@ -1,0 +1,3 @@
+src/bindings.ts
+src-tauri/target/**
+src-tauri/gen/**

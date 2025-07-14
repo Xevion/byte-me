@@ -11,28 +11,28 @@
  * @returns The formatted string with the appropriate unit.
  */
 export function formatBytes(v: number): string {
-  if (v < 1024) return `${v} B`;
+	if (v < 1024) return `${v} B`;
 
-  const units = ["KiB", "MiB", "GiB", "TiB"];
-  let unitIndex = -1;
-  let value = v;
+	const units = ["KiB", "MiB", "GiB", "TiB"];
+	let unitIndex = -1;
+	let value = v;
 
-  while (value >= 1024 && unitIndex < units.length - 1) {
-    value /= 1024;
-    unitIndex++;
-  }
+	while (value >= 1024 && unitIndex < units.length - 1) {
+		value /= 1024;
+		unitIndex++;
+	}
 
-  const intValue = Math.floor(value);
-  const decimal = value - intValue;
+	const intValue = Math.floor(value);
+	const decimal = value - intValue;
 
-  if (intValue >= 1000) {
-    // More than 3 digits, no decimal
-    return `${intValue} ${units[unitIndex]}`;
-  } else if (decimal >= 0.1) {
-    // Show 1 decimal if decimal >= 0.1
-    return `${value.toFixed(1)} ${units[unitIndex]}`;
-  } else {
-    // No decimal
-    return `${intValue} ${units[unitIndex]}`;
-  }
+	if (intValue >= 1000) {
+		// More than 3 digits, no decimal
+		return `${intValue} ${units[unitIndex]}`;
+	} else if (decimal >= 0.1) {
+		// Show 1 decimal if decimal >= 0.1
+		return `${value.toFixed(1)} ${units[unitIndex]}`;
+	} else {
+		// No decimal
+		return `${intValue} ${units[unitIndex]}`;
+	}
 }

@@ -116,7 +116,7 @@ const DropOverlay = ({ paths }: DropOverlayProps) => {
 						<span className="inline-block w-32 h-5 bg-neutral-300/10 rounded animate-pulse" />
 					}
 				/>
-			))
+			)),
 		)
 		.with({ status: "ready" }, (r) => {
 			return r.files
