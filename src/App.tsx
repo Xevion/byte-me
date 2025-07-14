@@ -4,8 +4,8 @@ type Frame = {
 };
 
 import { getCurrentWebview } from "@tauri-apps/api/webview";
-import { useEffect, useRef, useState } from "react";
-import Graph from "./components/Graph.js";
+import { useEffect, useState } from "react";
+import Graph from "./components/graph.js";
 import DropOverlay from "./components/drop-overlay.js";
 
 function App() {
