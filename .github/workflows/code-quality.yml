@@ -1,0 +1,134 @@
+name: Code Quality
+
+permissions: read-all
+
+on:
+  workflow_dispatch: # Allow manual triggering
+  pull_request:
+    branches: [master]
+    paths:
+      - "**/Cargo.toml"
+      - "**/Cargo.lock"
+      - "**/package.json"
+      - "**/pnpm-lock.yaml"
+  push:
+    branches: [master]
+    paths:
+      - "**/Cargo.toml"
+      - "**/Cargo.lock"
+      - "**/package.json"
+      - "**/pnpm-lock.yaml"
+
+jobs:
+  rust-quality:
+    name: Rust Code Quality
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@nightly
+        with:
+          components: rustfmt, clippy
+
+      - name: Rust Cache
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+
+      - name: Install Linux dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
+
+      - name: Install cargo-udeps
+        uses: taiki-e/cache-cargo-install-action@v2
+        with:
+          tool: cargo-udeps
+
+      - name: Check for unused dependencies
+        run: cargo +nightly udeps --manifest-path src-tauri/Cargo.toml --all-targets
+
+      - name: Install cargo-machete
+        uses: taiki-e/cache-cargo-install-action@v2
+        with:
+          tool: cargo-machete
+
+      - name: Check for unused Cargo.toml dependencies
+        run: cargo machete src-tauri/
+
+      - name: Install cargo-outdated
+        uses: taiki-e/cache-cargo-install-action@v2
+        with:
+          tool: cargo-outdated
+
+      - name: Check for outdated dependencies
+        run: cargo outdated --manifest-path src-tauri/Cargo.toml --exit-code 1
+        continue-on-error: true
+
+  frontend-quality:
+    name: Frontend Code Quality
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Check for unused dependencies
+        run: pnpm exec depcheck --ignore-bin-package=false --skip-missing=true
+        continue-on-error: true
+
+      - name: Check for outdated dependencies
+        run: pnpm outdated
+        continue-on-error: true
+
+      - name: Bundle size analysis
+        run: pnpm run build && du -sh dist/
+        continue-on-error: true
+
+  license-check:
+    name: License Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install cargo-license
+        uses: taiki-e/cache-cargo-install-action@v2
+        with:
+          tool: cargo-license
+
+      - name: Check Rust crate licenses
+        run: cargo license --manifest-path src-tauri/Cargo.toml --json > rust-licenses.json
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Check npm package licenses
+        run: pnpm exec license-checker --json > npm-licenses.json
+        continue-on-error: true
