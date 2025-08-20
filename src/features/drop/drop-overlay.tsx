@@ -1,5 +1,17 @@
 import { ReactNode, useEffect, useRef, useState } from "react";
 import { match, P } from "ts-pattern";
+import {
+	CheckCircle,
+	File as FileIcon,
+	FileText,
+	Film,
+	Image,
+	Loader2,
+	Music,
+	XCircle,
+} from "lucide-react";
+import { commands } from "../../bindings";
+import type { MediaType, StreamDetail } from "../../bindings";
 
 type DropOverlayProps = {
 	paths: string[];
@@ -14,31 +26,19 @@ type State =
 				name: string;
 				key: string;
 				media_type: MediaType;
-				duration?: number;
+				duration?: number | null;
 				size: number;
-				streams: any[];
+				streams: StreamDetail[];
 			}[];
 	  }
 	| { status: "error"; reason: string; filename?: string; error_type?: string };
 
-import {
-	CheckCircle,
-	File as FileIcon,
-	FileText,
-	Film,
-	Image,
-	Loader2,
-	Music,
-	XCircle,
-} from "lucide-react";
-import { commands, MediaType } from "../bindings";
-
 type FileItemProps = {
 	filename: string;
 	media_type: MediaType;
-	duration?: number;
+	duration?: number | null;
 	size: number;
-	streams: any[];
+	streams: StreamDetail[];
 	error?: string;
 	error_type?: string;
 };
@@ -57,7 +57,9 @@ const formatDuration = (seconds: number): string => {
 	const secs = Math.floor(seconds % 60);
 
 	if (hours > 0) {
-		return `${hours}:${minutes.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
+		return `${hours}:${minutes.toString().padStart(2, "0")}:${secs
+			.toString()
+			.padStart(2, "0")}`;
 	}
 	return `${minutes}:${secs.toString().padStart(2, "0")}`;
 };
@@ -107,7 +109,10 @@ const getFileIcon = (
 	}
 };
 
-const getStreamInfo = (streams: any[], mediaType: MediaType): string => {
+const getStreamInfo = (
+	streams: StreamDetail[],
+	mediaType: MediaType,
+): string => {
 	// For non-media files, return file type description
 	if (!["Audio", "Video", "Image"].includes(mediaType)) {
 		switch (mediaType) {
@@ -125,17 +130,17 @@ const getStreamInfo = (streams: any[], mediaType: MediaType): string => {
 	}
 
 	// For media files, analyze streams
-	const videoStreams = streams.filter((s) => "Video" in s);
-	const audioStreams = streams.filter((s) => "Audio" in s);
-	const subtitleStreams = streams.filter((s) => "Subtitle" in s);
+	const videoStreams = streams.filter((s: any) => "Video" in s);
+	const audioStreams = streams.filter((s: any) => "Audio" in s);
+	const subtitleStreams = streams.filter((s: any) => "Subtitle" in s);
 
-	const parts = [];
+	const parts = [] as string[];
 	if (videoStreams.length > 0) {
-		const video = videoStreams[0];
+		const video: any = videoStreams[0] as any;
 		if ("Video" in video) {
-			const width = video.Video.width;
-			const height = video.Video.height;
-			const codec = video.Video.codec;
+			const width = (video as any).Video.width;
+			const height = (video as any).Video.height;
+			const codec = (video as any).Video.codec;
 			if (width && height) {
 				parts.push(`${width}x${height} ${codec}`);
 			} else {
@@ -144,9 +149,9 @@ const getStreamInfo = (streams: any[], mediaType: MediaType): string => {
 		}
 	}
 	if (audioStreams.length > 0) {
-		const audio = audioStreams[0];
+		const audio: any = audioStreams[0] as any;
 		if ("Audio" in audio) {
-			parts.push(`${audio.Audio.codec} audio`);
+			parts.push(`${(audio as any).Audio.codec} audio`);
 		}
 	}
 	if (subtitleStreams.length > 0) {
@@ -219,7 +224,9 @@ const FileItem = ({
 	} else {
 		const streamInfo = getStreamInfo(streams, media_type);
 		const durationStr = duration ? formatDuration(duration) : null;
-		const details = [streamInfo, durationStr, fileSize].filter(Boolean);
+		const details = [streamInfo, durationStr, fileSize].filter(
+			Boolean,
+		) as string[];
 		subtitle = details.join(" • ");
 		status = "success";
 	}
@@ -253,7 +260,7 @@ const DropOverlay = ({ paths }: DropOverlayProps) => {
 							key: item.path,
 							media_type: item.media_type,
 							duration: item.duration,
-							size: item.size,
+							size: Number(item.size),
 							streams: item.streams,
 						})),
 					}))
@@ -343,7 +350,7 @@ const DropOverlay = ({ paths }: DropOverlayProps) => {
 				</div>
 			);
 		})
-		.with({ status: "error" }, ({ reason, error_type }) => {
+		.with({ status: "error" }, ({ reason }) => {
 			return (
 				<div className="flex flex-col items-center gap-4">
 					<div className="flex items-center gap-2 text-red-400">

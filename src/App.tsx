@@ -1,38 +1,12 @@
-type Frame = {
-	id: string;
-	data: { x: string | number; y: number }[];
-};
-
-import { getCurrentWebview } from "@tauri-apps/api/webview";
-import { useEffect, useState } from "react";
-import Graph from "./components/graph.js";
-import DropOverlay from "./components/drop-overlay.js";
+import { useDragDropPaths } from "./hooks/useDragDropPaths.js";
+import Graph from "./features/graph/graph.js";
+import DropOverlay from "./features/drop/drop-overlay.js";
+import type { Frame } from "./types/graph.js";
 
 function App() {
 	const data: Frame[] = [];
 
-	const [paths, setPaths] = useState<string[]>([]);
-	useEffect(() => {
-		const unlistenPromise = getCurrentWebview().onDragDropEvent(
-			async ({ payload }) => {
-				if (payload.type === "enter") {
-					setPaths(payload.paths);
-					console.log("User hovering", payload);
-				} else if (payload.type === "leave" || payload.type === "drop") {
-					setPaths([]);
-					console.log("User left", payload);
-				}
-			},
-		);
-
-		// you need to call unlisten if your handler goes out of scope e.g. the component is unmounted
-		return () => {
-			unlistenPromise.then((unlisten) => {
-				unlisten();
-				console.log("Unlistened");
-			});
-		};
-	}, []);
+	const paths = useDragDropPaths();
 
 	const graph = <Graph data={data} />;
 

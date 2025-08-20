@@ -1,10 +1,6 @@
 import { ResponsiveLine } from "@nivo/line";
-import { formatBytes } from "../lib/format.js";
-
-type Frame = {
-	id: string;
-	data: { x: string | number; y: number }[];
-};
+import { formatBytes } from "../../lib/format.js";
+import type { Frame } from "../../types/graph.js";
 
 type GraphProps = {
 	data: Frame[];
