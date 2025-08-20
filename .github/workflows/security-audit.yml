@@ -3,11 +3,6 @@ name: Security Audit
 on:
   workflow_dispatch: # Allow manual triggering
   push:
-    paths:
-      - "**/Cargo.toml"
-      - "**/Cargo.lock"
-      - "**/package.json"
-      - "**/pnpm-lock.yaml"
 
 jobs:
   rust-audit:
