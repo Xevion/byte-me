@@ -20,11 +20,11 @@ jobs:
       matrix:
         include:
           - os: ubuntu-22.04
-            target: ""
+            target: x86_64-unknown-linux-gnu
             artifact_name: byte-me-linux-x86_64
             artifact_path: src-tauri/target/x86_64-unknown-linux-gnu/release/byte-me
           - os: windows-latest
-            target: ""
+            target: x86_64-pc-windows-msvc
             artifact_name: byte-me-windows-x86_64
             artifact_path: src-tauri/target/x86_64-pc-windows-msvc/release/byte-me.exe
           - os: macos-latest
@@ -79,7 +79,7 @@ jobs:
         run: cargo fetch --manifest-path src-tauri/Cargo.toml
 
       - name: Install Tauri CLI
-        uses: taiki-e/cache-cargo-install-action@v2
+        uses: Xevion/cache-cargo-install-action@main
         with:
           tool: tauri-cli@2
           locked: true
@@ -97,12 +97,10 @@ jobs:
             librsvg2-dev \
             patchelf
 
-      - name: Build app (tauri - host)
-        if: matrix.target == ''
-        run: cargo tauri build
+      - name: Generate frontend bindings
+        run: pnpm run generate-types
 
-      - name: Build app (tauri - target)
-        if: matrix.target != ''
+      - name: Build app (tauri)
         run: cargo tauri build --target ${{ matrix.target }}
 
       - name: Upload binary artifact
@@ -110,6 +108,7 @@ jobs:
         with:
           name: ${{ matrix.artifact_name }}
           path: ${{ matrix.artifact_path }}
+          if-no-files-found: error
 
       - name: sccache stats
         if: always()
