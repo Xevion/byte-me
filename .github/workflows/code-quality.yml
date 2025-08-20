@@ -51,17 +51,13 @@ jobs:
             patchelf
 
       - name: Install cargo-udeps
-        uses: taiki-e/cache-cargo-install-action@v2
-        with:
-          tool: cargo-udeps
+        uses: taiki-e/install-action@cargo-udeps
 
       - name: Check for unused dependencies
         run: cargo +nightly udeps --manifest-path src-tauri/Cargo.toml --all-targets
 
       - name: Install cargo-machete
-        uses: taiki-e/cache-cargo-install-action@v2
-        with:
-          tool: cargo-machete
+        uses: taiki-e/install-action@cargo-machete
 
       - name: Check for unused Cargo.toml dependencies
         run: cargo machete src-tauri/
