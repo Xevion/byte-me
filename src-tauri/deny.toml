@@ -1,0 +1,39 @@
+[graph]
+targets = [
+	"x86_64-unknown-linux-gnu",
+	"x86_64-pc-windows-msvc",
+	"aarch64-apple-darwin",
+	"x86_64-apple-darwin",
+]
+all-features = true
+no-default-features = false
+
+[output]
+feature-depth = 1
+
+[advisories]
+ignore = [
+    "RUSTSEC-2024-0429",
+]
+unmaintained = "workspace"
+
+[licenses]
+allow = []
+confidence-threshold = 0.8
+exceptions = []
+
+[licenses.private]
+ignore = false
+registries = []
+
+[bans]
+multiple-versions = "allow"
+wildcards = "allow"
+highlight = "all"
+workspace-default-features = "allow"
+external-default-features = "allow"
+allow = []
+
+[sources]
+unknown-registry = "warn"
+unknown-git = "warn"
