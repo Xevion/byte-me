@@ -5,7 +5,7 @@
 	"type": "module",
 	"scripts": {
 		"dev": "vite",
-		"build": "tsc && vite build",
+		"build": "pnpm generate-types && tsc && vite build",
 		"preview": "vite preview",
 		"tauri": "tauri",
 		"generate-types": "tsx scripts/generate-types.ts"

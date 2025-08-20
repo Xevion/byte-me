@@ -2,10 +2,10 @@ mod ff;
 mod media;
 mod models;
 
-use std::path::Path;
-use models::{MediaType, StreamDetail, StreamResult, StreamResultError};
-use media::{detect_media_type, is_media_file};
 use ff::extract_streams;
+use media::{detect_media_type, is_media_file};
+use models::{StreamResult, StreamResultError};
+use std::path::Path;
 
 // detection, helpers moved to modules above
 
@@ -68,10 +68,10 @@ fn has_streams(paths: Vec<String>) -> Result<Vec<StreamResult>, StreamResultErro
                         })
                     }
                     Err(err) => {
-                        eprintln!("Could not analyze media file with ffprobe: {:?}", err);
+                        eprintln!("Could not analyze media file with ffprobe: {err:?}");
                         Err(StreamResultError {
                             filename: Some(filename),
-                            reason: format!("Could not analyze media file: {}", err),
+                            reason: format!("Could not analyze media file: {err}"),
                             error_type: "analysis_failed".to_string(),
                         })
                     }
@@ -80,7 +80,7 @@ fn has_streams(paths: Vec<String>) -> Result<Vec<StreamResult>, StreamResultErro
                 // For non-media files, return an error indicating it's not a media file
                 Err(StreamResultError {
                     filename: Some(filename),
-                    reason: format!("Not a media file (detected as {:?})", media_type),
+                    reason: format!("Not a media file (detected as {media_type:?})"),
                     error_type: "not_media".to_string(),
                 })
             }
@@ -99,13 +99,14 @@ pub fn run() {
 
 #[cfg(test)]
 mod tests {
+    use crate::models::StreamDetail;
+
     use super::*;
+    use ts_rs::TS;
 
     #[test]
     fn export_bindings() {
         // This will generate TypeScript bindings when you run `cargo test export_bindings`
-        StreamResult::export().unwrap();
-        StreamDetail::export().unwrap();
-        StreamResultError::export().unwrap();
+        TS::export_all_to("../../src/bindings")
     }
 }

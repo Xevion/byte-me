@@ -117,11 +117,11 @@ pub fn detect_media_type(path: &Path) -> MediaType {
             // Archive extensions
             "zip" | "rar" | "7z" | "tar" | "gz" | "bz2" | "bz3" | "xz" | "swf" | "sqlite"
             | "nes" | "crx" | "cab" | "deb" | "ar" | "Z" | "lz" | "rpm" | "dcm" | "zst" | "lz4"
-            | "msi" | "cpio" | "par2" | "epub" | "mobi" => MediaType::Archive,
+            | "cpio" | "par2" | "epub" | "mobi" => MediaType::Archive,
 
             // Executable extensions
-            "exe" | "dll" | "msi" | "dmg" | "pkg" | "deb" | "rpm" | "app" | "elf" | "bc"
-            | "mach" | "class" | "dex" | "dey" | "der" | "obj" => MediaType::Executable,
+            "exe" | "dll" | "msi" | "dmg" | "pkg" | "app" | "elf" | "bc" | "mach" | "class"
+            | "dex" | "dey" | "der" | "obj" => MediaType::Executable,
 
             // Library extensions
             "so" | "dylib" => MediaType::Library,
