@@ -8,7 +8,7 @@
 		"build": "pnpm generate-types && tsc && vite build",
 		"preview": "vite preview",
 		"tauri": "tauri",
-		"generate-types": "tsx scripts/generate-types.ts"
+		"generate-types": "cargo test --manifest-path src-tauri/Cargo.toml -- --test export_bindings"
 	},
 	"dependencies": {
 		"@nivo/core": "^0.99.0",
