@@ -3,7 +3,7 @@ name: CI
 on:
   pull_request:
   push:
-    branches: [master]
+    branches: [master, test-cache-action-break]
 
 env:
   CARGO_TERM_COLOR: always
@@ -75,7 +75,7 @@ jobs:
         run: cargo fetch --manifest-path src-tauri/Cargo.toml
 
       - name: Install Tauri CLI
-        uses: Xevion/cache-cargo-install-action@main
+        uses: taiki-e/cache-cargo-install-action@v2
         with:
           tool: tauri-cli@2
           locked: true
