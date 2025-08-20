@@ -19,19 +19,16 @@ jobs:
           - os: ubuntu-22.04
             target: x86_64-unknown-linux-gnu
             artifact_name: byte-me-linux-x86_64
-            artifact_path: src-tauri/target/x86_64-unknown-linux-gnu/release/byte-me
           - os: windows-latest
             target: x86_64-pc-windows-msvc
             artifact_name: byte-me-windows-x86_64
-            artifact_path: src-tauri/target/x86_64-pc-windows-msvc/release/byte-me.exe
+            artifact_extension: .exe
           - os: macos-latest
             target: aarch64-apple-darwin
             artifact_name: byte-me-macos-aarch64
-            artifact_path: src-tauri/target/aarch64-apple-darwin/release/byte-me
           - os: macos-latest
             target: x86_64-apple-darwin
             artifact_name: byte-me-macos-x86_64
-            artifact_path: src-tauri/target/x86_64-apple-darwin/release/byte-me
 
     steps:
       - name: Checkout
@@ -43,13 +40,16 @@ jobs:
           components: rustfmt, clippy
           targets: ${{ matrix.target }}
 
-      - name: Run sccache-cache only on non-release runs
+      - name: Use sccache
         if: github.event_name != 'release' && github.event_name != 'workflow_dispatch'
         uses: mozilla-actions/sccache-action@v0.0.9
 
-      - name: Set Rust caching env vars only on non-release runs
+      - name: Configure sccache
+        if: github.event_name != 'release' && github.event_name != 'workflow_dispatch'
         run: |
+          # Enable GitHub Actions for cache storage
           echo "SCCACHE_GHA_ENABLED=true" >> $GITHUB_ENV
+          # Use sccache for rustc
           echo "RUSTC_WRAPPER=sccache" >> $GITHUB_ENV
 
       - name: Rust cache
@@ -68,10 +68,10 @@ jobs:
           node-version: 20
           cache: "pnpm"
 
-      - name: Install JS deps
+      - name: Install frontend dependencies
         run: pnpm install --frozen-lockfile --prefer-offline
 
-      - name: Install Rust dependencies
+      - name: Install backend dependencies
         run: cargo fetch --manifest-path src-tauri/Cargo.toml
 
       - name: Install Tauri CLI
@@ -103,9 +103,6 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.artifact_name }}
-          path: ${{ matrix.artifact_path }}
+          # on all but windows, the artifact_extension is empty
+          path: src-tauri/target/${{ matrix.target }}/release/byte-me${{ matrix.artifact_extension }}
           if-no-files-found: error
-
-      - name: sccache stats
-        if: always()
-        run: sccache --show-stats
