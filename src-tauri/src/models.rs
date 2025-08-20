@@ -2,7 +2,6 @@ use serde::{Deserialize, Serialize};
 use ts_rs::TS;
 
 #[derive(Serialize, Deserialize, Debug, Clone, TS)]
-#[ts(export)]
 pub enum MediaType {
     Audio,
     Video,
@@ -15,7 +14,6 @@ pub enum MediaType {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, TS)]
-#[ts(export)]
 pub struct StreamResult {
     pub path: String,
     pub filename: String,
@@ -26,7 +24,6 @@ pub struct StreamResult {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, TS)]
-#[ts(export)]
 pub enum StreamDetail {
     Video {
         codec: String,
@@ -48,9 +45,22 @@ pub enum StreamDetail {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, TS)]
-#[ts(export)]
 pub struct StreamResultError {
     pub filename: Option<String>,
     pub reason: String,
     pub error_type: String,
+}
+
+#[cfg(test)]
+mod tests {
+    #[test]
+    fn export_bindings() {
+        // This will generate TypeScript bindings when you run `cargo test export_bindings`
+        use super::*;
+
+        StreamDetail::export_all_to("../src/bindings").expect("Failed to export bindings");
+        StreamResult::export_all_to("../src/bindings").expect("Failed to export bindings");
+        StreamResultError::export_all_to("../src/bindings").expect("Failed to export bindings");
+        MediaType::export_all_to("../src/bindings").expect("Failed to export bindings");
+    }
 }

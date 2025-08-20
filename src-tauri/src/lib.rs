@@ -96,16 +96,3 @@ pub fn run() {
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
-
-#[cfg(test)]
-mod tests {
-    use ts_rs::TS;
-
-    #[test]
-    fn export_bindings() {
-        // This will generate TypeScript bindings when you run `cargo test export_bindings`
-        use crate::models::*;
-
-        StreamDetail::export_all_to("../../src/bindings").expect("Failed to export bindings");
-    }
-}

@@ -43,5 +43,3 @@ pub fn extract_streams(info: &ffprobe::FfProbe) -> Vec<StreamDetail> {
 
     streams
 }
-
-
