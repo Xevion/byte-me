@@ -47,6 +47,10 @@ jobs:
             librsvg2-dev \
             patchelf
 
+      # this will run again in next step, but we run it here to separate the error from the frontend build step
+      - name: Generate frontend bindings
+        run: pnpm run generate-types
+
       - name: Build frontend (tsc + vite)
         run: |
           pnpm run build  # implicitly runs generate-types
