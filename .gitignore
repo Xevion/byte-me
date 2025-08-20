@@ -1,3 +1,6 @@
+src/bindings/*.ts
+src-tauri/bindings/*.ts
+
 # Seed data
 .data/*
 !.data/seed.ps1

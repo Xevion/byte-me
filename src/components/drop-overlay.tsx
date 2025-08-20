@@ -8,56 +8,225 @@ type DropOverlayProps = {
 type State =
 	| { status: "hidden" }
 	| { status: "loading"; count: number }
-	| { status: "ready"; files: { name: string; key: string }[] }
-	| { status: "error"; reason: string; filename?: string };
+	| {
+			status: "ready";
+			files: {
+				name: string;
+				key: string;
+				media_type: MediaType;
+				duration?: number;
+				size: number;
+				streams: any[];
+			}[];
+	  }
+	| { status: "error"; reason: string; filename?: string; error_type?: string };
 
 import {
-	CircleQuestionMarkIcon,
+	CheckCircle,
 	File as FileIcon,
+	FileText,
 	Film,
 	Image,
+	Loader2,
 	Music,
+	XCircle,
 } from "lucide-react";
-import { commands } from "../bindings";
+import { commands, MediaType } from "../bindings";
 
 type FileItemProps = {
 	filename: string;
+	media_type: MediaType;
+	duration?: number;
+	size: number;
+	streams: any[];
 	error?: string;
+	error_type?: string;
 };
 
-const Item = ({ icon, text }: { icon: ReactNode; text: ReactNode }) => {
+const formatFileSize = (bytes: number): string => {
+	if (bytes === 0) return "0 B";
+	const k = 1024;
+	const sizes = ["B", "KB", "MB", "GB"];
+	const i = Math.floor(Math.log(bytes) / Math.log(k));
+	return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
+};
+
+const formatDuration = (seconds: number): string => {
+	const hours = Math.floor(seconds / 3600);
+	const minutes = Math.floor((seconds % 3600) / 60);
+	const secs = Math.floor(seconds % 60);
+
+	if (hours > 0) {
+		return `${hours}:${minutes.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
+	}
+	return `${minutes}:${secs.toString().padStart(2, "0")}`;
+};
+
+const getFileIcon = (
+	mediaType: MediaType,
+	error?: string,
+	errorType?: string,
+) => {
+	// For non-media files, show a neutral icon instead of error icon
+	if (errorType === "not_media") {
+		switch (mediaType) {
+			case "Executable":
+				return <FileIcon className="w-5 h-5 text-orange-400" />;
+			case "Archive":
+				return <FileIcon className="w-5 h-5 text-yellow-400" />;
+			case "Library":
+				return <FileIcon className="w-5 h-5 text-indigo-400" />;
+			case "Document":
+				return <FileText className="w-5 h-5 text-green-400" />;
+			default:
+				return <FileIcon className="w-5 h-5 text-neutral-300" />;
+		}
+	}
+
+	if (error) {
+		return <XCircle className="w-5 h-5 text-red-400" />;
+	}
+
+	switch (mediaType) {
+		case "Audio":
+			return <Music className="w-5 h-5 text-blue-400" />;
+		case "Video":
+			return <Film className="w-5 h-5 text-purple-400" />;
+		case "Image":
+			return <Image className="w-5 h-5 text-pink-400" />;
+		case "Document":
+			return <FileText className="w-5 h-5 text-green-400" />;
+		case "Executable":
+			return <FileIcon className="w-5 h-5 text-orange-400" />;
+		case "Archive":
+			return <FileIcon className="w-5 h-5 text-yellow-400" />;
+		case "Library":
+			return <FileIcon className="w-5 h-5 text-indigo-400" />;
+		default:
+			return <FileIcon className="w-5 h-5 text-neutral-300" />;
+	}
+};
+
+const getStreamInfo = (streams: any[], mediaType: MediaType): string => {
+	// For non-media files, return file type description
+	if (!["Audio", "Video", "Image"].includes(mediaType)) {
+		switch (mediaType) {
+			case "Executable":
+				return "Executable file";
+			case "Archive":
+				return "Archive file";
+			case "Library":
+				return "Library file";
+			case "Document":
+				return "Document file";
+			default:
+				return "Unknown file type";
+		}
+	}
+
+	// For media files, analyze streams
+	const videoStreams = streams.filter((s) => "Video" in s);
+	const audioStreams = streams.filter((s) => "Audio" in s);
+	const subtitleStreams = streams.filter((s) => "Subtitle" in s);
+
+	const parts = [];
+	if (videoStreams.length > 0) {
+		const video = videoStreams[0];
+		if ("Video" in video) {
+			const width = video.Video.width;
+			const height = video.Video.height;
+			const codec = video.Video.codec;
+			if (width && height) {
+				parts.push(`${width}x${height} ${codec}`);
+			} else {
+				parts.push(codec);
+			}
+		}
+	}
+	if (audioStreams.length > 0) {
+		const audio = audioStreams[0];
+		if ("Audio" in audio) {
+			parts.push(`${audio.Audio.codec} audio`);
+		}
+	}
+	if (subtitleStreams.length > 0) {
+		parts.push(`${subtitleStreams.length} subtitle(s)`);
+	}
+
+	return parts.join(", ");
+};
+
+const Item = ({
+	icon,
+	text,
+	subtitle,
+	status,
+}: {
+	icon: ReactNode;
+	text: ReactNode;
+	subtitle?: ReactNode;
+	status?: "success" | "error" | "loading";
+}) => {
+	const statusColor =
+		status === "success"
+			? "border-green-500"
+			: status === "error"
+				? "border-red-500"
+				: status === "loading"
+					? "border-blue-500"
+					: "border-neutral-600";
+
 	return (
 		<div
-			className="flex items-center gap-2 px-3 py-2 bg-neutral-800 rounded-md shadow-sm"
+			className={`flex items-center gap-3 px-4 py-3 bg-neutral-800 rounded-lg shadow-lg border-2 ${statusColor} transition-all duration-200`}
 			style={{
 				maxWidth: "100%",
-				marginBottom: "0.5rem",
+				marginBottom: "0.75rem",
 			}}
 		>
 			{icon}
-			<span className="truncate text-neutral-100 max-w-md">{text}</span>
+			<div className="flex-1 min-w-0">
+				<div className="truncate text-neutral-100 font-medium">{text}</div>
+				{subtitle && (
+					<div className="truncate text-neutral-400 text-sm mt-1">
+						{subtitle}
+					</div>
+				)}
+			</div>
 		</div>
 	);
 };
 
-const FileItem = ({ filename, error }: FileItemProps) => {
-	const ext = filename.split(".").pop()?.toLowerCase();
-	const icon =
-		error == null ? (
-			match(ext)
-				.with("mp3", "wav", "flac", "ogg", "m4a", "aac", () => (
-					<Music className="w-5 h-5 text-blue-400" />
-				))
-				.with("mp4", "mkv", "webm", "mov", "avi", () => (
-					<Film className="w-5 h-5 text-purple-400" />
-				))
-				.with("gif", () => <Image className="w-5 h-5 text-pink-400" />)
-				.otherwise(() => <FileIcon className="w-5 h-5 text-neutral-300" />)
-		) : (
-			<CircleQuestionMarkIcon className="w-5 h-5 text-neutral-300" />
-		);
+const FileItem = ({
+	filename,
+	media_type,
+	duration,
+	size,
+	streams,
+	error,
+	error_type,
+}: FileItemProps) => {
+	const icon = getFileIcon(media_type, error, error_type);
+	const fileSize = formatFileSize(size);
 
-	return <Item icon={icon} text={filename} />;
+	let subtitle: ReactNode;
+	let status: "success" | "error" | "loading" | undefined;
+
+	if (error) {
+		subtitle = error;
+		// For non-media files, show as neutral instead of error
+		status = error_type === "not_media" ? undefined : "error";
+	} else {
+		const streamInfo = getStreamInfo(streams, media_type);
+		const durationStr = duration ? formatDuration(duration) : null;
+		const details = [streamInfo, durationStr, fileSize].filter(Boolean);
+		subtitle = details.join(" • ");
+		status = "success";
+	}
+
+	return (
+		<Item icon={icon} text={filename} subtitle={subtitle} status={status} />
+	);
 };
 
 const DropOverlay = ({ paths }: DropOverlayProps) => {
@@ -82,6 +251,10 @@ const DropOverlay = ({ paths }: DropOverlayProps) => {
 						files: r.data.map((item) => ({
 							name: item.filename,
 							key: item.path,
+							media_type: item.media_type,
+							duration: item.duration,
+							size: item.size,
+							streams: item.streams,
 						})),
 					}))
 					.with({ status: "error" }, (r) => {
@@ -90,10 +263,15 @@ const DropOverlay = ({ paths }: DropOverlayProps) => {
 								status: "error" as const,
 								reason: r.error.reason,
 								filename: r.error.filename,
+								error_type: r.error.error_type,
 							};
 						}
 
-						return { status: "error" as const, reason: r.error.reason };
+						return {
+							status: "error" as const,
+							reason: r.error.reason,
+							error_type: r.error.error_type,
+						};
 					})
 					.exhaustive();
 			});
@@ -105,41 +283,89 @@ const DropOverlay = ({ paths }: DropOverlayProps) => {
 	}
 
 	const inner = match(state)
-		.with({ status: "loading" }, ({ count }) =>
-			Array.from({ length: count }).map((_, i) => (
-				<Item
-					key={i}
-					icon={
-						<CircleQuestionMarkIcon className="w-5 h-5 text-neutral-300/50" />
-					}
-					text={
-						<span className="inline-block w-32 h-5 bg-neutral-300/10 rounded animate-pulse" />
-					}
-				/>
-			)),
-		)
+		.with({ status: "loading" }, ({ count }) => (
+			<div className="flex flex-col items-center gap-4">
+				<Loader2 className="w-8 h-8 text-blue-400 animate-spin" />
+				<div className="text-white text-lg font-medium">
+					Analyzing {count} file{count > 1 ? "s" : ""}...
+				</div>
+				{Array.from({ length: Math.min(count, 3) }).map((_, i) => (
+					<Item
+						key={i}
+						icon={
+							<Loader2 className="w-5 h-5 text-neutral-300/50 animate-spin" />
+						}
+						text={
+							<span className="inline-block w-32 h-5 bg-neutral-300/10 rounded animate-pulse" />
+						}
+						status="loading"
+					/>
+				))}
+			</div>
+		))
 		.with({ status: "ready" }, (r) => {
-			return r.files
-				.slice(0, 8)
-				.map((file) => <FileItem key={file.key} filename={file.name} />);
+			return (
+				<div className="flex flex-col items-center gap-4">
+					<div className="flex items-center gap-2 text-green-400">
+						<CheckCircle className="w-6 h-6" />
+						<span className="text-lg font-medium">Files Ready</span>
+					</div>
+					<div className="max-h-96 overflow-y-auto">
+						{r.files.slice(0, 8).map((file) => (
+							<FileItem
+								key={file.key}
+								filename={file.name}
+								media_type={file.media_type}
+								duration={file.duration}
+								size={file.size}
+								streams={file.streams}
+							/>
+						))}
+					</div>
+				</div>
+			);
 		})
 		.with({ status: "error", filename: P.string }, (r) => {
-			return <FileItem filename={r.filename} error={r.reason} />;
-		})
-		.with({ status: "error" }, ({ reason }) => {
 			return (
-				<Item
-					icon={<CircleQuestionMarkIcon className="w-5 h-5 text-neutral-300" />}
-					text={reason}
-				/>
+				<div className="flex flex-col items-center gap-4">
+					<div className="flex items-center gap-2 text-red-400">
+						<XCircle className="w-6 h-6" />
+						<span className="text-lg font-medium">Error</span>
+					</div>
+					<FileItem
+						filename={r.filename}
+						media_type="Unknown"
+						size={0}
+						streams={[]}
+						error={r.reason}
+						error_type={r.error_type}
+					/>
+				</div>
+			);
+		})
+		.with({ status: "error" }, ({ reason, error_type }) => {
+			return (
+				<div className="flex flex-col items-center gap-4">
+					<div className="flex items-center gap-2 text-red-400">
+						<XCircle className="w-6 h-6" />
+						<span className="text-lg font-medium">Error</span>
+					</div>
+					<Item
+						icon={<XCircle className="w-5 h-5 text-red-400" />}
+						text={reason}
+						status="error"
+					/>
+				</div>
 			);
 		})
 		.exhaustive();
 
 	return (
-		<div className="absolute z-10 top-0 left-0 w-full h-full bg-black/40 backdrop-blur-sm transition-all duration-300 ease-in-out">
-			<div className="flex flex-col justify-center items-center h-full">
-				<span className="text-white text-2xl">{inner}</span>
+		<div className="absolute z-10 top-0 left-0 w-full h-full bg-black/60 backdrop-blur-sm transition-all duration-300 ease-in-out">
+			<div className="flex flex-col justify-center items-center h-full p-8">
+				<div className="bg-neutral-900 rounded-xl p-6 shadow-2xl max-w-2xl w-full">
+					{inner}
+				</div>
 			</div>
 		</div>
 	);

@@ -23,7 +23,5 @@ tauri-plugin-opener = "2"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 ffprobe = "0.4.0"
-specta = "=2.0.0-rc.22"
-specta-typescript = "0.0.9"
-tauri-specta = { version = "=2.0.0-rc.21", features = ["derive", "typescript"] }
-
+ts-rs = { version = "11.0", features = ["format"] }
+infer = "0.19.0"
