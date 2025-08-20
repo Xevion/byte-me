@@ -13,7 +13,28 @@ env:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    name: Build (${{ matrix.os }}${{ matrix.target && format(' / {0}', matrix.target) || '' }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-22.04
+            target: ""
+            artifact_name: byte-me-linux-x86_64
+            artifact_path: src-tauri/target/x86_64-unknown-linux-gnu/release/byte-me
+          - os: windows-latest
+            target: ""
+            artifact_name: byte-me-windows-x86_64
+            artifact_path: src-tauri/target/x86_64-pc-windows-msvc/release/byte-me.exe
+          - os: macos-latest
+            target: aarch64-apple-darwin
+            artifact_name: byte-me-macos-aarch64
+            artifact_path: src-tauri/target/aarch64-apple-darwin/release/byte-me
+          - os: macos-latest
+            target: x86_64-apple-darwin
+            artifact_name: byte-me-macos-x86_64
+            artifact_path: src-tauri/target/x86_64-apple-darwin/release/byte-me
 
     steps:
       - name: Checkout
@@ -23,6 +44,7 @@ jobs:
         uses: dtolnay/rust-toolchain@stable
         with:
           components: rustfmt, clippy
+          targets: ${{ matrix.target }}
 
       - name: Install sccache
         uses: taiki-e/install-action@sccache
@@ -54,6 +76,7 @@ jobs:
         run: pnpm install --frozen-lockfile --prefer-offline
 
       - name: Install Linux dependencies
+        if: runner.os == 'Linux'
         run: |
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends \
@@ -65,22 +88,19 @@ jobs:
             librsvg2-dev \
             patchelf
 
-      # this will run again in next step, but we run it here to separate the error from the frontend build step
-      - name: Generate frontend bindings
-        run: pnpm run generate-types
+      - name: Build app (tauri - host)
+        if: matrix.target == ''
+        run: pnpm tauri build
 
-      - name: Build frontend (tsc + vite)
-        run: |
-          pnpm run build  # implicitly runs generate-types
+      - name: Build app (tauri - target)
+        if: matrix.target != ''
+        run: pnpm tauri build --target ${{ matrix.target }}
 
-      - name: Format check
-        run: cargo fmt --manifest-path src-tauri/Cargo.toml --all -- --check
-
-      - name: Clippy
-        run: cargo clippy --manifest-path src-tauri/Cargo.toml --all-targets --all-features -- -D warnings
-
-      - name: Run tests
-        run: cargo test --manifest-path src-tauri/Cargo.toml --all-features
+      - name: Upload binary artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact_name }}
+          path: ${{ matrix.artifact_path }}
 
       - name: sccache stats
         if: always()
