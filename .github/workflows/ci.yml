@@ -81,7 +81,7 @@ jobs:
       - name: Install Tauri CLI
         uses: taiki-e/cache-cargo-install-action@v2
         with:
-          tool: tauri-cli@^2.0.0
+          tool: tauri-cli@2
           locked: true
 
       - name: Install Linux dependencies
