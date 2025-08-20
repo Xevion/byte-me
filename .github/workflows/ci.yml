@@ -19,24 +19,19 @@ jobs:
           - os: ubuntu-22.04
             target: x86_64-unknown-linux-gnu
             artifact_name: byte-me-linux-x86_64
-            use_sccache: false
           - os: ubuntu-22.04
             target: x86_64-unknown-linux-musl
             artifact_name: byte-me-linux-x86_64-musl
-            use_sccache: true
           - os: windows-latest
             target: x86_64-pc-windows-msvc
             artifact_name: byte-me-windows-x86_64
             artifact_extension: .exe
-            use_sccache: true
           - os: macos-latest
             target: aarch64-apple-darwin
             artifact_name: byte-me-macos-aarch64
-            use_sccache: true
           - os: macos-latest
             target: x86_64-apple-darwin
             artifact_name: byte-me-macos-x86_64
-            use_sccache: true
 
     steps:
       - name: Checkout
@@ -49,11 +44,11 @@ jobs:
           targets: ${{ matrix.target }}
 
       - name: Use sccache
-        if: github.event_name != 'release' && github.event_name != 'workflow_dispatch' && matrix.use_sccache
+        if: runner.os != 'Linux' && github.event_name != 'release' && github.event_name != 'workflow_dispatch'
         uses: mozilla-actions/sccache-action@v0.0.9
 
       - name: Configure sccache
-        if: github.event_name != 'release' && github.event_name != 'workflow_dispatch' && matrix.use_sccache
+        if: runner.os != 'Linux' && github.event_name != 'release' && github.event_name != 'workflow_dispatch'
         run: |
           # Enable GitHub Actions for cache storage
           echo "SCCACHE_GHA_ENABLED=true" >> $GITHUB_ENV
