@@ -42,6 +42,9 @@ importers:
       '@tauri-apps/cli':
         specifier: ^2
         version: 2.6.2
+      '@tsconfig/vite-react':
+        specifier: ^7.0.0
+        version: 7.0.0
       '@types/react':
         specifier: ^18.3.1
         version: 18.3.23
@@ -678,6 +681,9 @@ packages:
 
   '@tauri-apps/plugin-opener@2.4.0':
     resolution: {integrity: sha512-43VyN8JJtvKWJY72WI/KNZszTpDpzHULFxQs0CJBIYUdCRowQ6Q1feWTDb979N7nldqSuDOaBupZ6wz2nvuWwQ==}
+
+  '@tsconfig/vite-react@7.0.0':
+    resolution: {integrity: sha512-fiuTviENxttMlo8BHuVWgPe/DRwcuU722oVvQ/HLfI3pxXfX4uBjvj9tHm1fbj5+iYbcPmdGENXOUks6yKF2Ug==}
 
   '@types/babel__core@7.20.5':
     resolution: {integrity: sha512-qoQprZvz5wQFJwMDqeseRXWv3rqMvhgpbXFfVyWhbx9X47POIA6i/+dXefEmZKoAgOaTdaIgNSMqMIU61yRyzA==}
@@ -1862,6 +1868,8 @@ snapshots:
   '@tauri-apps/plugin-opener@2.4.0':
     dependencies:
       '@tauri-apps/api': 2.6.0
+
+  '@tsconfig/vite-react@7.0.0': {}
 
   '@types/babel__core@7.20.5':
     dependencies:

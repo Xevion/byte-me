@@ -1,4 +1,4 @@
-import { ReactNode, useEffect, useRef, useState } from "react";
+import { type ReactNode, useEffect, useRef, useState } from "react";
 import { match, P } from "ts-pattern";
 import {
 	CheckCircle,
@@ -10,8 +10,8 @@ import {
 	Music,
 	XCircle,
 } from "lucide-react";
-import { commands } from "../../bindings";
-import type { MediaType, StreamDetail } from "../../bindings";
+import { commands } from "../bindings";
+import type { MediaType, StreamDetail } from "../bindings";
 
 type DropOverlayProps = {
 	paths: string[];
