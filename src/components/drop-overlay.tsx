@@ -10,8 +10,8 @@ import {
 	Music,
 	XCircle,
 } from "lucide-react";
-import { commands } from "../bindings";
-import type { MediaType, StreamDetail } from "../bindings";
+import { commands } from "@/bindings";
+import type { MediaType, StreamDetail } from "@/bindings";
 
 type DropOverlayProps = {
 	paths: string[];

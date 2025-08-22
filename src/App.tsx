@@ -1,7 +1,7 @@
-import { useDragDropPaths } from "./hooks/useDragDropPaths";
-import Graph from "./components/graph";
-import DropOverlay from "./components/drop-overlay";
-import type { Frame } from "./types/graph";
+import { useDragDropPaths } from "@/hooks/useDragDropPaths";
+import Graph from "@/components/graph";
+import DropOverlay from "@/components/drop-overlay";
+import type { Frame } from "@/types/graph";
 
 function App() {
 	const data: Frame[] = [];

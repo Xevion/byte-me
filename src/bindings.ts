@@ -1,8 +1,8 @@
 // Import generated TypeScript types from ts-rs
-import type { StreamResult } from "./bindings/StreamResult";
-import type { StreamDetail } from "./bindings/StreamDetail";
-import type { StreamResultError } from "./bindings/StreamResultError";
-import type { MediaType } from "./bindings/MediaType";
+import type { StreamResult } from "@/bindings/StreamResult";
+import type { StreamDetail } from "@/bindings/StreamDetail";
+import type { StreamResultError } from "@/bindings/StreamResultError";
+import type { MediaType } from "@/bindings/MediaType";
 export type { StreamResult, StreamDetail, StreamResultError, MediaType };
 
 // Tauri invoke wrapper

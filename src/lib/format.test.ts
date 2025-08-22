@@ -1,4 +1,4 @@
-import { formatBytes } from "./format.js";
+import { formatBytes } from "@/lib/format";
 import { test, expect } from "vitest";
 
 test("formats bytes less than 1024", () => {
