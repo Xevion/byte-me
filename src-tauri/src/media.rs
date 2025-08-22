@@ -1,13 +1,22 @@
 use crate::models::MediaType;
 use std::{fs::File, io::Read, path::Path};
+use tracing::{debug, instrument, trace, warn};
 
+#[instrument(skip(path), fields(path = %path.display()))]
 pub fn detect_media_type(path: &Path) -> MediaType {
+    debug!("Starting media type detection");
+
     // First try to detect using infer crate (magic number detection)
     if let Ok(mut file) = File::open(path) {
         let mut buffer = [0; 512];
         if let Ok(bytes_read) = file.read(&mut buffer) {
+            trace!(bytes_read = bytes_read, "Read file header for magic number detection");
+            
             if let Some(kind) = infer::get(&buffer[..bytes_read]) {
-                return match kind.mime_type() {
+                let mime_type = kind.mime_type();
+                debug!(mime_type = %mime_type, "Detected MIME type from magic numbers");
+                
+                let media_type = match mime_type {
                     // Audio types
                     "audio/mpeg" | "audio/mp3" | "audio/m4a" | "audio/ogg" | "audio/x-flac"
                     | "audio/x-wav" | "audio/amr" | "audio/aac" | "audio/x-aiff"
@@ -90,13 +99,25 @@ pub fn detect_media_type(path: &Path) -> MediaType {
                     // Library types (covered by executable types above, but keeping for clarity)
                     _ => MediaType::Unknown,
                 };
+                
+                debug!(media_type = ?media_type, "Detected media type from magic numbers");
+                return media_type;
+            } else {
+                debug!("Magic number detection failed, falling back to extension-based detection");
             }
+        } else {
+            warn!("Failed to read file for magic number detection");
         }
+    } else {
+        warn!("Failed to open file for magic number detection");
     }
 
     // Fallback to extension-based detection
     if let Some(extension) = path.extension() {
-        match extension.to_str().unwrap_or("").to_lowercase().as_str() {
+        let ext_str = extension.to_str().unwrap_or("").to_lowercase();
+        debug!(extension = %ext_str, "Detecting media type from file extension");
+        
+        let media_type = match ext_str.as_str() {
             // Audio extensions
             "mp3" | "wav" | "flac" | "ogg" | "m4a" | "aac" | "wma" | "mid" | "amr" | "aiff"
             | "dsf" | "ape" => MediaType::Audio,
@@ -127,15 +148,23 @@ pub fn detect_media_type(path: &Path) -> MediaType {
             "so" | "dylib" => MediaType::Library,
 
             _ => MediaType::Unknown,
-        }
+        };
+        
+        debug!(media_type = ?media_type, "Detected media type from extension");
+        media_type
     } else {
+        debug!("No file extension found, returning Unknown");
         MediaType::Unknown
     }
 }
 
+#[instrument(skip(media_type))]
 pub fn is_media_file(media_type: &MediaType) -> bool {
-    matches!(
+    let is_media = matches!(
         media_type,
         MediaType::Audio | MediaType::Video | MediaType::Image
-    )
+    );
+    
+    debug!(media_type = ?media_type, is_media = is_media, "Checking if file is media type");
+    is_media
 }
