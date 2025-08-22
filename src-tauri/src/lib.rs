@@ -1,6 +1,7 @@
 mod ff;
 mod media;
 mod models;
+pub mod strings;
 
 use ff::extract_streams;
 use media::{detect_media_type, is_media_file};
