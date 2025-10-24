@@ -1,0 +1,145 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    ":enableVulnerabilityAlertsWithLabel(security)"
+  ],
+  "schedule": ["before 6am on Monday"],
+  "timezone": "UTC",
+  "prConcurrentLimit": 10,
+  "prHourlyLimit": 0,
+  "semanticCommits": "enabled",
+  "dependencyDashboard": true,
+  "labels": ["dependencies"],
+  "rangeStrategy": "bump",
+  "postUpdateOptions": ["pnpmDedupe"],
+  "packageRules": [
+    {
+      "description": "Automerge non-major dev dependencies",
+      "matchDepTypes": ["devDependencies"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "automerge": true,
+      "automergeType": "pr",
+      "ignoreTests": false
+    },
+    {
+      "description": "Automerge patch updates for production dependencies",
+      "matchDepTypes": ["dependencies"],
+      "matchUpdateTypes": ["patch"],
+      "automerge": true,
+      "automergeType": "pr",
+      "ignoreTests": false
+    },
+    {
+      "description": "Group all Tauri packages together",
+      "groupName": "Tauri",
+      "matchPackagePatterns": ["^@tauri-apps/", "^tauri-"],
+      "matchManagers": ["npm"],
+      "automerge": false,
+      "labels": ["dependencies", "tauri"]
+    },
+    {
+      "description": "Group Tauri Rust dependencies",
+      "groupName": "Tauri (Rust)",
+      "matchPackageNames": ["tauri", "tauri-build"],
+      "matchManagers": ["cargo"],
+      "automerge": false,
+      "labels": ["dependencies", "tauri", "rust"]
+    },
+    {
+      "description": "Group React ecosystem updates",
+      "groupName": "React",
+      "matchPackageNames": ["react", "react-dom"],
+      "matchPackagePatterns": ["^@types/react"],
+      "labels": ["dependencies", "react"]
+    },
+    {
+      "description": "Group TypeScript and build tooling",
+      "groupName": "Build tooling",
+      "matchPackageNames": ["typescript", "vite", "@vitejs/plugin-react", "vite-tsconfig-paths"],
+      "labels": ["dependencies", "tooling"]
+    },
+    {
+      "description": "Group ESLint and related plugins",
+      "groupName": "ESLint",
+      "matchPackagePatterns": ["^eslint", "^@eslint/", "^@typescript-eslint/"],
+      "labels": ["dependencies", "linting"]
+    },
+    {
+      "description": "Group testing frameworks",
+      "groupName": "Testing",
+      "matchPackagePatterns": ["^vitest", "^@vitest/"],
+      "labels": ["dependencies", "testing"]
+    },
+    {
+      "description": "Group TailwindCSS and plugins",
+      "groupName": "TailwindCSS",
+      "matchPackagePatterns": ["^tailwindcss", "^@tailwindcss/"],
+      "labels": ["dependencies", "styling"]
+    },
+    {
+      "description": "Group Nivo chart libraries",
+      "groupName": "Nivo",
+      "matchPackagePatterns": ["^@nivo/"],
+      "labels": ["dependencies", "charts"]
+    },
+    {
+      "description": "Separate major updates for manual review",
+      "matchUpdateTypes": ["major"],
+      "automerge": false,
+      "labels": ["dependencies", "major-update"],
+      "reviewers": []
+    },
+    {
+      "description": "High priority security updates",
+      "matchUpdateTypes": ["security"],
+      "labels": ["dependencies", "security"],
+      "automerge": false,
+      "schedule": ["at any time"]
+    },
+    {
+      "description": "Rust patch updates - automerge",
+      "matchManagers": ["cargo"],
+      "matchUpdateTypes": ["patch"],
+      "automerge": true,
+      "automergeType": "pr"
+    },
+    {
+      "description": "Rust minor updates - review required",
+      "matchManagers": ["cargo"],
+      "matchUpdateTypes": ["minor"],
+      "automerge": false,
+      "labels": ["dependencies", "rust", "minor-update"]
+    },
+    {
+      "description": "Rust major updates - careful review",
+      "matchManagers": ["cargo"],
+      "matchUpdateTypes": ["major"],
+      "automerge": false,
+      "labels": ["dependencies", "rust", "major-update"]
+    },
+    {
+      "description": "Pin ts-rs (type generation critical)",
+      "matchPackageNames": ["ts-rs"],
+      "matchManagers": ["cargo"],
+      "automerge": false,
+      "labels": ["dependencies", "rust", "type-generation"]
+    }
+  ],
+  "cargo": {
+    "enabled": true,
+    "rangeStrategy": "bump"
+  },
+  "npm": {
+    "enabled": true,
+    "rangeStrategy": "bump"
+  },
+  "lockFileMaintenance": {
+    "enabled": true,
+    "automerge": true,
+    "schedule": ["before 6am on Monday"]
+  },
+  "platformAutomerge": true,
+  "ignoreTests": false,
+  "commitMessagePrefix": "chore(deps):"
+}
