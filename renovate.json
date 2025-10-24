@@ -33,10 +33,10 @@
     {
       "description": "Group all Tauri packages together",
       "groupName": "Tauri",
-      "matchPackagePatterns": ["^@tauri-apps/", "^tauri-"],
       "matchManagers": ["npm"],
       "automerge": false,
-      "labels": ["dependencies", "tauri"]
+      "labels": ["dependencies", "tauri"],
+      "matchPackageNames": ["/^@tauri-apps//", "/^tauri-/"]
     },
     {
       "description": "Group Tauri Rust dependencies",
@@ -49,39 +49,47 @@
     {
       "description": "Group React ecosystem updates",
       "groupName": "React",
-      "matchPackageNames": ["react", "react-dom"],
-      "matchPackagePatterns": ["^@types/react"],
+      "matchPackageNames": ["react", "react-dom", "/^@types/react/"],
       "labels": ["dependencies", "react"]
     },
     {
       "description": "Group TypeScript and build tooling",
       "groupName": "Build tooling",
-      "matchPackageNames": ["typescript", "vite", "@vitejs/plugin-react", "vite-tsconfig-paths"],
+      "matchPackageNames": [
+        "typescript",
+        "vite",
+        "@vitejs/plugin-react",
+        "vite-tsconfig-paths"
+      ],
       "labels": ["dependencies", "tooling"]
     },
     {
       "description": "Group ESLint and related plugins",
       "groupName": "ESLint",
-      "matchPackagePatterns": ["^eslint", "^@eslint/", "^@typescript-eslint/"],
-      "labels": ["dependencies", "linting"]
+      "labels": ["dependencies", "linting"],
+      "matchPackageNames": [
+        "/^eslint/",
+        "/^@eslint//",
+        "/^@typescript-eslint//"
+      ]
     },
     {
       "description": "Group testing frameworks",
       "groupName": "Testing",
-      "matchPackagePatterns": ["^vitest", "^@vitest/"],
-      "labels": ["dependencies", "testing"]
+      "labels": ["dependencies", "testing"],
+      "matchPackageNames": ["/^vitest/", "/^@vitest//"]
     },
     {
       "description": "Group TailwindCSS and plugins",
       "groupName": "TailwindCSS",
-      "matchPackagePatterns": ["^tailwindcss", "^@tailwindcss/"],
-      "labels": ["dependencies", "styling"]
+      "labels": ["dependencies", "styling"],
+      "matchPackageNames": ["/^tailwindcss/", "/^@tailwindcss//"]
     },
     {
       "description": "Group Nivo chart libraries",
       "groupName": "Nivo",
-      "matchPackagePatterns": ["^@nivo/"],
-      "labels": ["dependencies", "charts"]
+      "labels": ["dependencies", "charts"],
+      "matchPackageNames": ["/^@nivo//"]
     },
     {
       "description": "Separate major updates for manual review",
