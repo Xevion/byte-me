@@ -51,11 +51,11 @@ const Graph = ({ data }: GraphProps) => (
 				fill: "#6e6a86",
 			},
 		}}
-		axisBottom={{ legend: "transportation", legendOffset: 36 }}
+		axisBottom={{ legend: "Frame Number", legendOffset: 36 }}
 		axisLeft={{
-			legend: "count",
+			legend: "Packet Size",
 			legendOffset: -40,
-			format: (v) => formatBytes(v * 1024 * 53),
+			format: (v) => formatBytes(v),
 		}}
 		pointSize={10}
 		colors={["#3e8faf", "#c4a7e7", "#f5c276", "#EA9B96", "#EB7092", "#9CCFD8"]}

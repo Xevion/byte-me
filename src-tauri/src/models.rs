@@ -51,6 +51,39 @@ pub struct StreamResultError {
     pub error_type: String,
 }
 
+// New types for simplified drop overlay
+#[derive(Serialize, Deserialize, Debug, Clone, TS)]
+pub struct File {
+    pub filename: String,
+    pub size: u32,
+    pub candidacy: FileCandidacy,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, TS)]
+pub enum FileCandidacy {
+    Success {
+        #[serde(rename = "type")]
+        file_type: MediaType,
+    },
+    Error {
+        reason: String,
+    },
+    Loading,
+}
+
+// Bitrate visualization types
+#[derive(Serialize, Deserialize, Debug, Clone, TS)]
+pub struct BitrateFrame {
+    pub frame_num: u32,
+    pub packet_size: u64,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, TS)]
+pub struct BitrateData {
+    pub id: String,
+    pub frames: Vec<BitrateFrame>,
+}
+
 #[cfg(test)]
 mod tests {
     #[test]
@@ -62,5 +95,9 @@ mod tests {
         StreamResult::export_all_to("../src/bindings").expect("Failed to export bindings");
         StreamResultError::export_all_to("../src/bindings").expect("Failed to export bindings");
         MediaType::export_all_to("../src/bindings").expect("Failed to export bindings");
+        File::export_all_to("../src/bindings").expect("Failed to export bindings");
+        FileCandidacy::export_all_to("../src/bindings").expect("Failed to export bindings");
+        BitrateFrame::export_all_to("../src/bindings").expect("Failed to export bindings");
+        BitrateData::export_all_to("../src/bindings").expect("Failed to export bindings");
     }
 }

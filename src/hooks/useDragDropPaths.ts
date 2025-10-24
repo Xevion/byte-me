@@ -7,14 +7,13 @@ export function useDragDropPaths(): string[] {
 	useEffect(() => {
 		const unlistenPromise = getCurrentWebview().onDragDropEvent(
 			async ({ payload }) => {
-				if (payload.type === "enter") {
+				if (payload.type === "drop") {
 					setPaths(payload.paths);
-				} else if (payload.type === "leave" || payload.type === "drop") {
+				} else if (payload.type === "leave") {
 					setPaths([]);
 				}
 			},
 		);
-
 		return () => {
 			unlistenPromise.then((unlisten) => unlisten());
 		};
