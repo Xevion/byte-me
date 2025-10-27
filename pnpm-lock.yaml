@@ -36,7 +36,7 @@ importers:
         specifier: ^4.1.16
         version: 4.1.16
       ts-pattern:
-        specifier: ^5.8.0
+        specifier: ^5.9.0
         version: 5.9.0
     devDependencies:
       '@tauri-apps/cli':
