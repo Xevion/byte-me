@@ -15,7 +15,7 @@
 		"@nivo/core": "^0.99.0",
 		"@nivo/line": "^0.99.0",
 		"@tailwindcss/vite": "^4.1.18",
-		"@tauri-apps/api": "^2.9.0",
+		"@tauri-apps/api": "^2.9.1",
 		"@tauri-apps/plugin-opener": "^2.5.2",
 		"lucide-react": "^0.562.0",
 		"react": "^19.2.3",
@@ -24,7 +24,7 @@
 		"ts-pattern": "^5.9.0"
 	},
 	"devDependencies": {
-		"@tauri-apps/cli": "^2.9.3",
+		"@tauri-apps/cli": "^2.9.6",
 		"@tsconfig/vite-react": "^7.0.2",
 		"@types/react": "^19.2.7",
 		"@types/react-dom": "^19.2.3",
