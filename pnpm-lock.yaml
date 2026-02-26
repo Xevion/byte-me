@@ -27,10 +27,10 @@ importers:
         specifier: ^0.562.0
         version: 0.562.0(react@19.2.4)
       react:
-        specifier: ^19.2.3
+        specifier: ^19.2.4
         version: 19.2.4
       react-dom:
-        specifier: ^19.2.3
+        specifier: ^19.2.4
         version: 19.2.4(react@19.2.4)
       tailwindcss:
         specifier: ^4.1.18
@@ -46,7 +46,7 @@ importers:
         specifier: ^7.0.2
         version: 7.0.2
       '@types/react':
-        specifier: ^19.2.8
+        specifier: ^19.2.14
         version: 19.2.14
       '@types/react-dom':
         specifier: ^19.2.3
