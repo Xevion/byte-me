@@ -13,6 +13,13 @@
   "labels": ["dependencies"],
   "rangeStrategy": "bump",
   "postUpdateOptions": ["pnpmDedupe"],
+  "vulnerabilityAlerts": {
+    "enabled": true,
+    "labels": ["dependencies", "security"],
+    "schedule": ["at any time"],
+    "minimumReleaseAge": null
+  },
+  "osvVulnerabilityAlerts": true,
   "packageRules": [
     {
       "description": "Automerge non-major dev dependencies",
@@ -97,13 +104,6 @@
       "automerge": false,
       "labels": ["dependencies", "major-update"],
       "reviewers": []
-    },
-    {
-      "description": "High priority security updates",
-      "matchUpdateTypes": ["security"],
-      "labels": ["dependencies", "security"],
-      "automerge": false,
-      "schedule": ["at any time"]
     },
     {
       "description": "Rust patch updates - automerge",
