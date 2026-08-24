@@ -5,8 +5,18 @@ on:
   push:
 
 jobs:
-  rust-audit:
-    name: Rust Security Audit
+  advisories:
+    name: Advisories
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0 # the baseline is scanned from a worktree
+
+      - uses: Xevion/advisory-action@v1
+
+  supply-chain:
+    name: Supply Chain
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
@@ -14,28 +24,7 @@ jobs:
       - name: Install cargo-deny
         uses: taiki-e/install-action@cargo-deny
 
+      # Advisories are judged against the merge base in the job above. Source
+      # and ban policy have no such time dependence, so they stay a plain gate.
       - name: Run cargo deny
-        run: cargo deny --manifest-path src-tauri/Cargo.toml check sources advisories bans --show-stats
-
-  npm-audit:
-    name: NPM Security Audit
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v6
-
-      - name: Install pnpm
-        uses: pnpm/action-setup@v5
-        with:
-          version: 10.26.2
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v6
-        with:
-          node-version: "24.12.0"
-          cache: "pnpm"
-
-      - name: Install dependencies
-        run: pnpm install
-
-      - name: Run npm audit
-        run: pnpm audit --audit-level moderate
+        run: cargo deny --manifest-path src-tauri/Cargo.toml check sources bans --show-stats
