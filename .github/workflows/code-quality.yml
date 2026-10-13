@@ -53,7 +53,7 @@ jobs:
         run: cargo machete src-tauri/
 
       - name: Install cargo-outdated
-        uses: taiki-e/cache-cargo-install-action@v2
+        uses: taiki-e/cache-cargo-install-action@v3
         with:
           tool: cargo-outdated
 
